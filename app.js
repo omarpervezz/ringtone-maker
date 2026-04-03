@@ -1,9 +1,21 @@
+/**
+ * Global app state
+ * --------------------------------------------------
+ * These variables store the current waveform instance,
+ * selection region, uploaded file, and generated ringtone URL.
+ */
 let wavesurfer = null;
 let regionsPlugin = null;
 let activeRegion = null;
 let currentFile = null;
 let ringtoneUrl = null;
 
+/**
+ * DOM references
+ * --------------------------------------------------
+ * Cache all required DOM elements once so we do not
+ * repeatedly query the document.
+ */
 const audioFileInput = document.getElementById("audioFile");
 const fileNameEl = document.getElementById("fileName");
 const startLabel = document.getElementById("startLabel");
@@ -18,12 +30,18 @@ const downloadLink = document.getElementById("downloadLink");
 const messageEl = document.getElementById("message");
 const dropzone = document.getElementById("dropzone");
 
+/**
+ * Convert seconds into a mm:ss.s format.
+ */
 function formatTime(seconds) {
   const mins = Math.floor(seconds / 60);
   const secs = (seconds % 60).toFixed(1).padStart(4, "0");
   return `${String(mins).padStart(2, "0")}:${secs}`;
 }
 
+/**
+ * Show a status message to the user.
+ */
 function setMessage(text, type = "neutral") {
   messageEl.textContent = text;
   messageEl.className = "mt-5 min-h-6 text-sm";
@@ -41,6 +59,9 @@ function setMessage(text, type = "neutral") {
   messageEl.classList.add("message-neutral");
 }
 
+/**
+ * Update visible values for the active region.
+ */
 function updateRegionInfo(region) {
   if (!region) return;
 
@@ -49,6 +70,9 @@ function updateRegionInfo(region) {
   durationLabel.textContent = `${(region.end - region.start).toFixed(1)} sec`;
 }
 
+/**
+ * Enable or disable the control buttons.
+ */
 function setControlsEnabled(enabled) {
   playPauseBtn.disabled = !enabled;
   playSelectionBtn.disabled = !enabled;
@@ -56,6 +80,9 @@ function setControlsEnabled(enabled) {
   makeRingtoneBtn.disabled = !enabled;
 }
 
+/**
+ * Reset all visible timing values to their defaults.
+ */
 function resetDisplayValues() {
   startLabel.textContent = "00:00.0";
   endLabel.textContent = "00:00.0";
@@ -64,6 +91,9 @@ function resetDisplayValues() {
   playPauseBtn.textContent = "▶";
 }
 
+/**
+ * Clean up the previously generated ringtone URL.
+ */
 function cleanupRingtoneUrl() {
   if (ringtoneUrl) {
     URL.revokeObjectURL(ringtoneUrl);
@@ -71,6 +101,9 @@ function cleanupRingtoneUrl() {
   }
 }
 
+/**
+ * Destroy the current waveform instance.
+ */
 function destroyWaveform() {
   if (wavesurfer) {
     wavesurfer.destroy();
@@ -80,6 +113,9 @@ function destroyWaveform() {
   activeRegion = null;
 }
 
+/**
+ * Create a default region after the waveform is ready.
+ */
 function createDefaultRegion(duration) {
   if (!regionsPlugin) return;
 
@@ -104,6 +140,9 @@ function createDefaultRegion(duration) {
   updateRegionInfo(region);
 }
 
+/**
+ * Ensure only one region exists at a time.
+ */
 function ensureSingleRegion(region) {
   const allRegions = regionsPlugin.getRegions();
 
@@ -117,6 +156,9 @@ function ensureSingleRegion(region) {
   updateRegionInfo(region);
 }
 
+/**
+ * Initialize WaveSurfer and bind its events.
+ */
 function initWaveform(file) {
   destroyWaveform();
   cleanupRingtoneUrl();
@@ -186,6 +228,9 @@ function initWaveform(file) {
   wavesurfer.loadBlob(file);
 }
 
+/**
+ * Check whether the selected file is a valid MP3.
+ */
 function validateMp3File(file) {
   if (!file) return false;
 
@@ -196,6 +241,9 @@ function validateMp3File(file) {
   );
 }
 
+/**
+ * Validate and process a selected file.
+ */
 function handleSelectedFile(file) {
   if (!validateMp3File(file)) {
     audioFileInput.value = "";
@@ -215,21 +263,33 @@ function handleSelectedFile(file) {
   initWaveform(file);
 }
 
+/**
+ * File input change handler.
+ */
 audioFileInput.addEventListener("change", (event) => {
   const file = event.target.files?.[0];
   if (!file) return;
   handleSelectedFile(file);
 });
 
+/**
+ * Drag-over highlight state.
+ */
 dropzone.addEventListener("dragover", (event) => {
   event.preventDefault();
   dropzone.classList.add("border-cyan-400/60", "bg-cyan-400/10");
 });
 
+/**
+ * Remove drag-over highlight state.
+ */
 dropzone.addEventListener("dragleave", () => {
   dropzone.classList.remove("border-cyan-400/60", "bg-cyan-400/10");
 });
 
+/**
+ * Handle file drop upload.
+ */
 dropzone.addEventListener("drop", (event) => {
   event.preventDefault();
   dropzone.classList.remove("border-cyan-400/60", "bg-cyan-400/10");
@@ -240,16 +300,25 @@ dropzone.addEventListener("drop", (event) => {
   handleSelectedFile(file);
 });
 
+/**
+ * Toggle full track playback.
+ */
 playPauseBtn.addEventListener("click", () => {
   if (!wavesurfer) return;
   wavesurfer.playPause();
 });
 
+/**
+ * Play only the selected region.
+ */
 playSelectionBtn.addEventListener("click", () => {
   if (!wavesurfer || !activeRegion) return;
   activeRegion.play();
 });
 
+/**
+ * Reset the selected region back to default.
+ */
 resetSelectionBtn.addEventListener("click", () => {
   if (!wavesurfer || !regionsPlugin) return;
 
@@ -258,6 +327,9 @@ resetSelectionBtn.addEventListener("click", () => {
   createDefaultRegion(duration);
 });
 
+/**
+ * Generate a ringtone from the current selection.
+ */
 makeRingtoneBtn.addEventListener("click", async () => {
   try {
     if (!currentFile || !activeRegion) {
@@ -326,11 +398,17 @@ makeRingtoneBtn.addEventListener("click", async () => {
   }
 });
 
+/**
+ * Convert AudioBuffer -> WAV Blob
+ */
 function audioBufferToWavBlob(buffer) {
   const wavArrayBuffer = audioBufferToWav(buffer);
   return new Blob([wavArrayBuffer], { type: "audio/wav" });
 }
 
+/**
+ * Convert AudioBuffer -> WAV ArrayBuffer
+ */
 function audioBufferToWav(buffer) {
   const numOfChannels = buffer.numberOfChannels;
   const sampleRate = buffer.sampleRate;
@@ -369,6 +447,9 @@ function audioBufferToWav(buffer) {
   return arrayBuffer;
 }
 
+/**
+ * Interleave multi-channel audio data.
+ */
 function interleave(channelData) {
   if (channelData.length === 1) {
     return channelData[0];
@@ -390,6 +471,9 @@ function interleave(channelData) {
   return result;
 }
 
+/**
+ * Convert Float32 audio samples to 16-bit PCM.
+ */
 function floatTo16BitPCM(output, offset, input) {
   for (let i = 0; i < input.length; i += 1, offset += 2) {
     const sample = Math.max(-1, Math.min(1, input[i]));
@@ -401,6 +485,9 @@ function floatTo16BitPCM(output, offset, input) {
   }
 }
 
+/**
+ * Write a string into a DataView.
+ */
 function writeString(view, offset, string) {
   for (let i = 0; i < string.length; i += 1) {
     view.setUint8(offset + i, string.charCodeAt(i));
