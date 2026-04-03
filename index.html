@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ringtone Maker</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+
+  <body class="app-bg min-h-screen text-slate-700">
+    <main class="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-10">
+      <header class="mx-auto mb-10 max-w-3xl text-center">
+        <div
+          class="mx-auto mb-5 flex h-18 w-18 items-center justify-center rounded-3xl border border-slate-200 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.08)]"
+        >
+          <span class="text-3xl">🎧</span>
+        </div>
+
+        <h1
+          class="text-4xl font-extrabold tracking-tight text-slate-800 md:text-6xl"
+        >
+          Ringtone Maker
+        </h1>
+
+        <p
+          class="mx-auto mt-4 max-w-2xl text-sm leading-6 text-slate-500 md:text-base"
+        >
+          Upload an MP3, choose the exact part you want, preview it, and export
+          it as a ringtone in seconds.
+        </p>
+      </header>
+
+      <section class="grid gap-6 xl:grid-cols-[360px_1fr]">
+        <aside class="panel p-5 md:p-6">
+          <label
+            for="audioFile"
+            id="dropzone"
+            class="group flex min-h-[280px] cursor-pointer flex-col items-center justify-center rounded-[28px] border border-dashed border-slate-300 bg-slate-50 px-6 text-center transition duration-200 hover:border-cyan-400 hover:bg-cyan-50"
+          >
+            <div
+              class="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-100 to-sky-100 text-3xl shadow-inner"
+            >
+              🎵
+            </div>
+
+            <p class="text-xl font-semibold text-slate-800">Upload MP3 File</p>
+            <p class="mt-2 text-sm text-slate-500">
+              Click to browse or drag and drop your audio here
+            </p>
+            <p
+              class="mt-3 text-xs font-medium uppercase tracking-[0.18em] text-slate-400"
+            >
+              MP3 only
+            </p>
+          </label>
+
+          <input
+            id="audioFile"
+            type="file"
+            accept=".mp3,audio/mpeg"
+            class="hidden"
+          />
+
+          <div
+            class="mt-5 rounded-[28px] border border-slate-200 bg-slate-50 p-4"
+          >
+            <div class="mb-4">
+              <p class="label-text">File</p>
+              <p
+                id="fileName"
+                class="mt-2 truncate text-sm font-medium text-slate-700"
+              >
+                No file selected
+              </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="stat-card">
+                <p class="label-text">Start</p>
+                <p id="startLabel" class="stat-value">00:00.0</p>
+              </div>
+
+              <div class="stat-card">
+                <p class="label-text">End</p>
+                <p id="endLabel" class="stat-value">00:00.0</p>
+              </div>
+            </div>
+
+            <div class="stat-card mt-3">
+              <p class="label-text">Selected Length</p>
+              <p id="durationLabel" class="stat-value">0.0 sec</p>
+            </div>
+          </div>
+        </aside>
+
+        <section class="panel p-5 md:p-6 lg:p-7">
+          <div class="mb-5 flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 class="text-2xl font-semibold tracking-tight text-slate-800">
+                Waveform Editor
+              </h2>
+              <p class="mt-2 text-sm text-slate-500">
+                Drag or resize the highlighted region to select your ringtone.
+              </p>
+            </div>
+
+            <div
+              class="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-medium text-slate-500"
+            >
+              MP3 input • WAV export
+            </div>
+          </div>
+
+          <div class="wave-shell">
+            <div
+              id="waveform"
+              class="w-full overflow-hidden rounded-[22px]"
+            ></div>
+          </div>
+
+          <div
+            class="mt-6 flex flex-col gap-4 2xl:flex-row 2xl:items-center 2xl:justify-between"
+          >
+            <div class="flex flex-wrap items-center gap-3">
+              <button
+                id="playPauseBtn"
+                class="icon-btn"
+                type="button"
+                disabled
+                aria-label="Play or pause audio"
+              >
+                ▶
+              </button>
+
+              <button
+                id="playSelectionBtn"
+                class="secondary-btn"
+                type="button"
+                disabled
+              >
+                Play Selection
+              </button>
+
+              <button
+                id="resetSelectionBtn"
+                class="secondary-btn"
+                type="button"
+                disabled
+              >
+                Reset Selection
+              </button>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+              <div class="info-pill">
+                <span class="text-slate-400">Current</span>
+                <span
+                  id="currentTimeLabel"
+                  class="font-semibold text-slate-800"
+                >
+                  00:00.0
+                </span>
+              </div>
+
+              <button
+                id="makeRingtoneBtn"
+                class="primary-btn"
+                type="button"
+                disabled
+              >
+                Make Ringtone
+              </button>
+            </div>
+          </div>
+
+          <div id="message" class="mt-5 min-h-6 text-sm text-slate-500"></div>
+
+          <a
+            id="downloadLink"
+            class="primary-download mt-4 hidden w-fit"
+            download="ringtone.wav"
+          >
+            Download Ringtone
+          </a>
+        </section>
+      </section>
+    </main>
+
+    <script src="https://unpkg.com/wavesurfer.js@7"></script>
+    <script src="https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
