@@ -33,7 +33,7 @@ ringtone-maker/
 ├── index.html       # Main UI and layout
 ├── app.js           # All the app logic
 ├── style.css        # Custom styles
-└── readme.md        # This file
+└── README.md        # This file
 ```
 
 ## 💻 Tech Stack
